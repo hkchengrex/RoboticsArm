@@ -1,7 +1,6 @@
 #include "ticks.h"
 
 volatile u32 ms_ticks = 0;
-volatile u32 life_signal_freq = NORM_FLASH_FREQ;
 
 void ticks_init(void){
 	NVIC_InitTypeDef NVIC_InitStructure;

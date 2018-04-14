@@ -14,8 +14,6 @@
 extern volatile u32 ms_ticks;
 #define get_ticks() (ms_ticks)
 
-extern volatile u32 life_signal_freq;
-
 void ticks_init(void);
 
 #endif
