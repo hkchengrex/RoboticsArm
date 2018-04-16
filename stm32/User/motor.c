@@ -67,7 +67,7 @@ void motor_init(){
 	TIM_Cmd(MOTOR_TIM, ENABLE);
 	TIM_CtrlPWMOutputs(MOTOR_TIM, ENABLE);
 	
-	motor_set_power(MOTOR_1, 05000);
+	motor_set_power(MOTOR_1, 0);
 	motor_set_power(MOTOR_2, 0);
 	motor_set_power(MOTOR_3, 0);
 	motor_set_power(MOTOR_4, 0);

@@ -579,6 +579,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\mymath.c</FilePath>
             </File>
+            <File>
+              <FileName>encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\encoder.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

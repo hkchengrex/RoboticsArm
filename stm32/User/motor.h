@@ -7,30 +7,30 @@
 #define MAX_PWM									10000
 #define MAX_PWM_OUTPUT				  10000
 
-#define MOTOR_TIM								TIM4
-#define MOTOR_TIM_RCC_init()		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE)
+#define MOTOR_TIM								TIM3
+#define MOTOR_TIM_RCC_init()		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE)
 
 //PWM: TIM4, PB6789
-//DIR: PA2, PA6
-#define MOTOR1_MAG_GPIOx					GPIOB
+//DIR: PA2, 5, 6, 7
+#define MOTOR1_MAG_GPIOx					GPIOA
 #define MOTOR1_MAG_Pin						GPIO_Pin_6
-#define MOTOR1_DIR_GPIOx					GPIOA
-#define MOTOR1_DIR_Pin						GPIO_Pin_2
+#define MOTOR1_DIR_GPIOx					GPIOC
+#define MOTOR1_DIR_Pin						GPIO_Pin_6
 
-#define MOTOR2_MAG_GPIOx					GPIOB
+#define MOTOR2_MAG_GPIOx					GPIOA
 #define MOTOR2_MAG_Pin						GPIO_Pin_7
-#define MOTOR2_DIR_GPIOx					GPIOA
-#define MOTOR2_DIR_Pin						GPIO_Pin_5
+#define MOTOR2_DIR_GPIOx					GPIOC
+#define MOTOR2_DIR_Pin						GPIO_Pin_7
 
 #define MOTOR3_MAG_GPIOx					GPIOB
-#define MOTOR3_MAG_Pin						GPIO_Pin_8
+#define MOTOR3_MAG_Pin						GPIO_Pin_0
 #define MOTOR3_DIR_GPIOx					GPIOC
-#define MOTOR3_DIR_Pin						GPIO_Pin_6
+#define MOTOR3_DIR_Pin						GPIO_Pin_10
 
 #define MOTOR4_MAG_GPIOx					GPIOB
-#define MOTOR4_MAG_Pin						GPIO_Pin_9
+#define MOTOR4_MAG_Pin						GPIO_Pin_1
 #define MOTOR4_DIR_GPIOx					GPIOC
-#define MOTOR4_DIR_Pin						GPIO_Pin_7
+#define MOTOR4_DIR_Pin						GPIO_Pin_11
 
 typedef enum{
 	MOTOR_1, 

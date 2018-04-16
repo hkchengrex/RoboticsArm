@@ -6,6 +6,7 @@
 #include "led.h"
 #include "gpio.h"
 
+#include "encoder.h"
 #include "motor.h"
 
 int main(void)
@@ -17,6 +18,7 @@ int main(void)
 	gpio_rcc_init_all();
 	ticks_init();
 	led_init();
+	encoder_init();
 	motor_init();
 	
   while (1) {
@@ -31,12 +33,16 @@ int main(void)
 		static u32 last_flash_ticks = 0;
 		if (this_ticks - last_flash_ticks >= 100){
 			LCD_Clear();
-			LCD_Printf(0, 0, "Hello %d", this_ticks);
+			LCD_Printf(0, 0, "%d", this_ticks);
+			LCD_Printf(0, 1, "%d", encoder_cnt[0]);
 			LCD_Update();
 			
 			last_flash_ticks = this_ticks;
 		}
 		
 		motor_set_power(MOTOR_1, 5000);
+		motor_set_power(MOTOR_2, 0);
+		motor_set_power(MOTOR_3, 10000);
+		motor_set_power(MOTOR_4, 10000);
   }
 }
