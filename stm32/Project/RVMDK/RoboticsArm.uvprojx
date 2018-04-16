@@ -584,6 +584,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\encoder.c</FilePath>
             </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\control.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

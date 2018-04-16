@@ -558,7 +558,7 @@ void LCD_DrawString ( uint16_t x, uint16_t y, const char * pStr )
 
 void LCD_Printf(uint16_t usC, uint16_t usP, const char * pstr, ...)	
 {
-	char buf[64];
+	char buf[256];
 	va_list arglist;
 	va_start(arglist, pstr);
 	vsprintf((char*)buf, (const char*)pstr, arglist);

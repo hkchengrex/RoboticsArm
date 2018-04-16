@@ -32,6 +32,8 @@
 #define MOTOR4_DIR_GPIOx					GPIOC
 #define MOTOR4_DIR_Pin						GPIO_Pin_11
 
+#define MOTOR_COUNT 3
+
 typedef enum{
 	MOTOR_1, 
 	MOTOR_2, 

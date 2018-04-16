@@ -1,7 +1,10 @@
 #include "encoder.h"
+#include "define.h"
 
 volatile s32 encoder_cnt[ENCODER_COUNT] = {0};
 volatile s32 encoder_vel[ENCODER_COUNT] = {0};
+
+static volatile s32 last_enc_cnt[ENCODER_COUNT] = {0};
 
 static u8 lastReading[ENCODER_COUNT][2] = {0};
 volatile s32 inter_count = 0;
@@ -42,8 +45,13 @@ void encoder_init(){
 	
 	GPIO_InitStructure.GPIO_Pin = ENCODER_1_B_PIN;
 	GPIO_Init(ENCODER_1_B_PORT, &GPIO_InitStructure);
-	
-	encoder_cnt[0] = encoder_vel[0] = 0;
+}
+
+void encoder_update(){
+	for (u8 i=0; i<3; i++){
+		encoder_vel[i] = (encoder_cnt[i] - last_enc_cnt[i])*CONTROL_FREQ;
+		last_enc_cnt[i] = encoder_cnt[i];
+	}
 }
 
 void EXTI9_5_IRQHandler(void){

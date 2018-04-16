@@ -1,4 +1,6 @@
 #include "ticks.h"
+#include "control.h"
+#include "encoder.h"
 
 volatile u32 ms_ticks = 0;
 
@@ -28,5 +30,11 @@ TICKS_IRQHandler{
 	//What defines time?
 	//What if time itself is slowing down, and you simply cannot tell?
 	ms_ticks++;
+	
+	if (ms_ticks % (1000/CONTROL_FREQ) == 0){
+		encoder_update();
+		control_update();
+	}
+	
 	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
 }

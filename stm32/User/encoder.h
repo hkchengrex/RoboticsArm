@@ -30,5 +30,6 @@ extern volatile s32 encoder_vel[ENCODER_COUNT];
 extern volatile s32 inter_count;
 
 void encoder_init(void);
+void encoder_update(void);
 
 #endif
