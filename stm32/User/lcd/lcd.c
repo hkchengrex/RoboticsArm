@@ -60,7 +60,7 @@ void LCD_BackLed_Control ( FunctionalState enumState )
 }
 
 
-static inline void LCD_Write_Cmd ( uint16_t usCmd )
+inline void LCD_Write_Cmd ( uint16_t usCmd )
 {
 	* ( __IO uint16_t * ) ( FSMC_Addr_LCD_CMD ) = usCmd;
 	
@@ -69,7 +69,7 @@ static inline void LCD_Write_Cmd ( uint16_t usCmd )
 
 
 
-static inline  void LCD_Write_Data ( uint16_t usData )
+inline  void LCD_Write_Data ( uint16_t usData )
 {
 	* ( __IO uint16_t * ) ( FSMC_Addr_LCD_DATA ) = usData;
 	

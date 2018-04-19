@@ -88,5 +88,8 @@ void                     LCD_Update                   (void);
 
 void LCD_Printf(uint16_t usC, uint16_t usP, const char * pstr, ...);
 
+extern inline void LCD_Write_Cmd ( uint16_t usCmd );
+extern inline void LCD_Write_Data ( uint16_t usData );
+
 #endif 
 

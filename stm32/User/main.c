@@ -9,6 +9,9 @@
 #include "encoder.h"
 #include "motor.h"
 
+#include "cam/bsp_ov7725.h"
+#include "cam/bsp_sccb.h"
+
 int main(void)
 {
 	//provided
@@ -20,6 +23,22 @@ int main(void)
 	led_init();
 	encoder_init();
 	motor_init();
+	
+	OV7725_GPIO_Config();
+	while(OV7725_Init() != SUCCESS);
+	
+	OV7725_Special_Effect(cam_mode.effect);
+	OV7725_Light_Mode(cam_mode.light_mode);
+	OV7725_Color_Saturation(cam_mode.saturation);
+	OV7725_Brightness(cam_mode.brightness);
+	OV7725_Contrast(cam_mode.contrast);
+	OV7725_Special_Effect(cam_mode.effect);
+	
+	OV7725_Window_Set(cam_mode.cam_sx,
+														cam_mode.cam_sy,
+														cam_mode.cam_width,
+														cam_mode.cam_height,
+														cam_mode.QVGA_VGA);
 	
   while (1) {
 		u32 this_ticks = get_ticks();
@@ -40,6 +59,20 @@ int main(void)
 			LCD_Update();
 			
 			last_flash_ticks = this_ticks;
+		}
+
+		static s32 last_cam_ticks = 0;
+		if (this_ticks - last_cam_ticks >= 100){
+			if(Ov7725_vsync == 2){
+				FIFO_PREPARE;
+				ImagDisp(cam_mode.lcd_sx,
+									cam_mode.lcd_sy,
+									cam_mode.cam_width,
+									cam_mode.cam_height);
+				
+				Ov7725_vsync = 0;	
+				last_cam_ticks = this_ticks;
+			}
 		}
 		
 		motor_set_power(MOTOR_1, 5000);
