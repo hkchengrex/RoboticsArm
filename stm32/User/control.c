@@ -3,14 +3,14 @@
 #include "encoder.h"
 #include "define.h"
 
-s32 motor_accel[MOTOR_COUNT] = {100, 100, 100};
-s32 motor_max_v[MOTOR_COUNT] = {5000, 5000, 5000};
+volatile s32 motor_accel[MOTOR_COUNT] = {100, 100, 100};
+volatile s32 motor_max_v[MOTOR_COUNT] = {5000, 5000, 5000};
 
-s32 motor_final_pos[MOTOR_COUNT] = {0, 0, 0};
-s32 motor_tar_pos[MOTOR_COUNT] = {0, 0, 0};
-s32 motor_tar_vel[MOTOR_COUNT] = {0, 0, 0};
-s32 motor_vel_remain[MOTOR_COUNT] = {0, 0, 0};
-s32 motor_pos_remain[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_final_pos[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_tar_pos[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_tar_vel[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_vel_remain[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_pos_remain[MOTOR_COUNT] = {0, 0, 0};
 
 #define PID_KP 2046
 #define PID_KI 26
@@ -18,8 +18,8 @@ s32 motor_pos_remain[MOTOR_COUNT] = {0, 0, 0};
 #define PID_SCALE (16)
 #define MAX_I (128)
 
-s32 inte_err[MOTOR_COUNT] = {0, 0, 0};
-s32 motor_pwm_value[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 inte_err[MOTOR_COUNT] = {0, 0, 0};
+volatile s32 motor_pwm_value[MOTOR_COUNT] = {0, 0, 0};
 
 void control_update(){
 	for (u8 i=0; i<MOTOR_COUNT; i++){

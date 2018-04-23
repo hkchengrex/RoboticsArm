@@ -32,18 +32,18 @@ OV7725_MODE_PARAM cam_mode =
 	.cam_sx = 0,
 	.cam_sy = 0,	
 	
-	.cam_width = 128,
-	.cam_height = 128,
+	.cam_width = CAM_WIDTH,
+	.cam_height = CAM_HEIGHT,
 	
-	.lcd_sx = 0,
-	.lcd_sy = 50,
+	.lcd_sx = 10,
+	.lcd_sy = 180,
 	.lcd_scan = 3, //LCD扫描模式，本横屏配置可用1、3、5、7模式
 	
 	//以下可根据自己的需要调整，参数范围见结构体类型定义	
 	.light_mode = 0,//自动光照模式
 	.saturation = 0,	
 	.brightness = 0,
-	.contrast = 0,
+	.contrast = 3,
 	.effect = 0,		//正常模式
 	
 	
@@ -318,6 +318,7 @@ void OV7725_GPIO_Config(void)
 	FIFO_GPIO_Config();
 	VSYNC_GPIO_Config();
 	
+	Ov7725_vsync = 0;
 }
 
 /************************************************
@@ -757,20 +758,27 @@ void OV7725_Window_VGA_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t heigh
 	* @param  height:显示窗口高度，要求跟OV7725_Window_Set函数中的height一致
   * @retval 无
   */
-void ImagDisp(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height)
+volatile uint8_t CameraData[CAM_WIDTH][CAM_HEIGHT];
+void ImagLoadAndDisp(uint16_t sx, uint16_t sy, uint16_t mode)
 {
-	uint16_t i, j; 
-	uint16_t Camera_Data;
-	
-	LCD_OpenWindow(sx,sy,width,height);
+	uint16_t i, j;
+	uint16_t tempData;
+
+	LCD_OpenWindow(sx, sy, CAM_WIDTH, CAM_HEIGHT);
 	LCD_Write_Cmd(CMD_SetPixel);
 
-	for(i = 0; i < width; i++)
+	for(i = 0; i < CAM_WIDTH; i++)
 	{
-		for(j = 0; j < height; j++)
+		for(j = 0; j < CAM_HEIGHT; j++)
 		{
-			READ_FIFO_PIXEL(Camera_Data);		/* 从FIFO读出一个rgb565像素到Camera_Data变量 */
-			LCD_Write_Data(Camera_Data);
+			READ_FIFO_PIXEL(tempData);		/* 从FIFO读出一个rgb565像素到Camera_Data变量 */
+			LCD_Write_Data(tempData);
+			if (mode == READ_RED){
+				u16 r = (tempData >> 11) & 0x1F;
+				u16 g = (tempData >> 6) & 0x1F;
+				u16 b = (tempData) & 0x1F;
+				CameraData[i][j] = r * 255 / (r+g+b);
+			}
 		}
 	}
 }

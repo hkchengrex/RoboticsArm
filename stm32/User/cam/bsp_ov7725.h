@@ -3,11 +3,18 @@
 	   
 #include "stm32f10x.h"
 
+#define CAM_WIDTH 100
+#define CAM_HEIGHT 100
+
+extern volatile uint8_t CameraData[CAM_WIDTH][CAM_HEIGHT];
+
+typedef enum{
+	READ_RED
+}CameraMode;
 
 /*摄像头配置结构体*/
 typedef struct
 {	
-
 	
 	uint8_t QVGA_VGA; //0：QVGA，1VGA
 	
@@ -288,16 +295,16 @@ typedef struct
 //                                          printf("<<-OV7725-DEBUG->> [%d]"fmt"\n",__LINE__, ##arg);\
 //                                          }while(0)
 
-#define OV7725_INFO(fmt,arg...)           
-#define OV7725_ERROR(fmt,arg...)          
-#define OV7725_DEBUG(fmt,arg...)          
+#define OV7725_INFO(fmt,arg...)           do{}while(0)
+#define OV7725_ERROR(fmt,arg...)          do{}while(0)
+#define OV7725_DEBUG(fmt,arg...)          do{}while(0)
 
 extern OV7725_MODE_PARAM cam_mode;
 extern volatile uint8_t Ov7725_vsync;
 
 void OV7725_GPIO_Config(void);
 ErrorStatus OV7725_Init(void);
-void ImagDisp(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height);
+
 void OV7725_Light_Mode(uint8_t mode);
 void OV7725_Color_Saturation(int8_t sat);
 void OV7725_Brightness(int8_t bri);
@@ -305,6 +312,8 @@ void OV7725_Contrast(int8_t cnst);
 void OV7725_Special_Effect(uint8_t eff);
 void VSYNC_Init(void);				
 void OV7725_Window_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height,uint8_t QVGA_VGA);
+
+void ImagLoadAndDisp(uint16_t sx,uint16_t sy, uint16_t mode);
 
 #endif
 
