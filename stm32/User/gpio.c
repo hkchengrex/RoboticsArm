@@ -8,4 +8,6 @@ void gpio_rcc_init_all(){
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOF, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOG, ENABLE);
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 }

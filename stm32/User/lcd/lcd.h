@@ -47,8 +47,8 @@
 #define      WIDTH_EN_CHAR		                 8	      
 #define      HEIGHT_EN_CHAR		              16		     
 
-#define MAX_CHAR_IN_PAGE		(LCD_Default_Max_COLUMN/WIDTH_EN_CHAR)
-#define MAX_CHAR_IN_COLUMN  (LCD_Default_Max_PAGE/HEIGHT_EN_CHAR)
+#define MAX_CHAR_IN_PAGE		(LCD_Default_Max_PAGE/HEIGHT_EN_CHAR)
+#define MAX_CHAR_IN_COLUMN  (LCD_Default_Max_COLUMN/WIDTH_EN_CHAR)
 
 #define      GetGBKCode( ucBuffer, usChar )  	 
 

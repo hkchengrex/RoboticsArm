@@ -3,8 +3,8 @@
 #include "encoder.h"
 #include "define.h"
 
-volatile s32 motor_accel[MOTOR_COUNT] = {100, 100, 100};
-volatile s32 motor_max_v[MOTOR_COUNT] = {5000, 5000, 5000};
+volatile s32 motor_accel[MOTOR_COUNT] = {1000, 1000, 1000};
+volatile s32 motor_max_v[MOTOR_COUNT] = {7000, 7000, 7000};
 
 volatile s32 motor_final_pos[MOTOR_COUNT] = {0, 0, 0};
 volatile s32 motor_tar_pos[MOTOR_COUNT] = {0, 0, 0};
@@ -12,10 +12,10 @@ volatile s32 motor_tar_vel[MOTOR_COUNT] = {0, 0, 0};
 volatile s32 motor_vel_remain[MOTOR_COUNT] = {0, 0, 0};
 volatile s32 motor_pos_remain[MOTOR_COUNT] = {0, 0, 0};
 
-#define PID_KP 2046
-#define PID_KI 26
-#define PID_KD 44
-#define PID_SCALE (16)
+#define PID_KP 500
+#define PID_KI 0 //26
+#define PID_KD 0 //44
+#define PID_SCALE (32)
 #define MAX_I (128)
 
 volatile s32 inte_err[MOTOR_COUNT] = {0, 0, 0};
@@ -30,9 +30,9 @@ void control_update(){
 		
 		//Update velocity
 		if (err > 0 && err < s_at_decel){
-      motor_tar_vel[i] = Sqrt(2*motor_accel[i]*err)/1024;
+      motor_tar_vel[i] = (s32)(Sqrt(motor_accel[i]/2*err)/512);
     }else if (err < 0 && err > -s_at_decel){
-      motor_tar_vel[i] = -Sqrt(ABS(2*motor_accel[i]*err))/1024;
+      motor_tar_vel[i] = -(s32)(Sqrt(ABS(motor_accel[i]/2*err))/512);
     }else if (err > 0){
       motor_tar_vel[i] += (motor_accel[i] + motor_vel_remain[i]) / CONTROL_FREQ;
 			motor_vel_remain[i] = (motor_accel[i] + motor_vel_remain[i]) % CONTROL_FREQ;
@@ -57,7 +57,10 @@ void control_update(){
 		
 		s32 duty = (PID_KP*curr_err + PID_KI*inte_err[i] + PID_KD*diff_err)/PID_SCALE;
 		motor_pwm_value[i] = CAP(duty, -MAX_PWM, MAX_PWM);
+		//motor_pwm_value[i] = cap_value(duty, -10000, 10000);
+		
 		motor_set_power((MotorID)i, motor_pwm_value[i]);
+		//motor_set_power((MotorID)i, 3000);
 	}
 }
 

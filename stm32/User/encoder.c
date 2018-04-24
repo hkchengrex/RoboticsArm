@@ -14,10 +14,8 @@ void encoder_init(){
 	NVIC_InitTypeDef NVIC_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-	
 	//Externel interrupt init
-	EXTI_InitStructure.EXTI_Line = EXTI_Line8 | EXTI_Line2;
+	EXTI_InitStructure.EXTI_Line = ENCODER_1_A_LINE | ENCODER_1_B_LINE;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
@@ -33,8 +31,6 @@ void encoder_init(){
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-	NVIC_Init(&NVIC_InitStructure);	
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
 	NVIC_Init(&NVIC_InitStructure);	
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
@@ -55,7 +51,7 @@ void encoder_update(){
 }
 
 void EXTI9_5_IRQHandler(void){
-	if (EXTI_GetITStatus(EXTI_Line8) != RESET) {
+	if (EXTI_GetITStatus(ENCODER_1_A_LINE) != RESET || EXTI_GetITStatus(ENCODER_1_B_LINE) != RESET) {
 		inter_count++;
 		u8 aReading, bReading;
 		aReading = GPIO_ReadInputDataBit(ENCODER_1_A_PORT, ENCODER_1_A_PIN);
@@ -72,28 +68,7 @@ void EXTI9_5_IRQHandler(void){
 		lastReading[0][0] = aReading;
 		lastReading[0][1] = bReading;
 		
-		EXTI_ClearITPendingBit(EXTI_Line8);
-	}
-}
-
-void EXTI2_IRQHandler(void){
-	if (EXTI_GetITStatus(EXTI_Line2) != RESET) {
-		inter_count++;
-		u8 aReading, bReading;
-		aReading = GPIO_ReadInputDataBit(ENCODER_1_A_PORT, ENCODER_1_A_PIN);
-		bReading = GPIO_ReadInputDataBit(ENCODER_1_B_PORT, ENCODER_1_B_PIN);
-
-		if (bReading ^ lastReading[0][0]){
-			encoder_cnt[0]++;
-		}
-		
-		if (aReading ^ lastReading[0][1]){
-			encoder_cnt[0]--;
-		}
-		
-		lastReading[0][0] = aReading;
-		lastReading[0][1] = bReading;
-		
-		EXTI_ClearITPendingBit(EXTI_Line2);
+		EXTI_ClearITPendingBit(ENCODER_1_A_LINE);
+		EXTI_ClearITPendingBit(ENCODER_1_B_LINE);
 	}
 }

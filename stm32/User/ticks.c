@@ -31,10 +31,10 @@ TICKS_IRQHandler{
 	//What if time itself is slowing down, and you simply cannot tell?
 	ms_ticks++;
 	
-	if (ms_ticks % (1000/CONTROL_FREQ) == 0){
-		encoder_update();
-		control_update();
-	}
+//	if (ms_ticks % (1000/CONTROL_FREQ) == 0){
+//		//encoder_update();
+//		//control_update();
+//	}
 	
 	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
 }

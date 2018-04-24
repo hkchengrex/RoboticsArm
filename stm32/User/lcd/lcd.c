@@ -90,7 +90,7 @@ static void LCD_GPIO_Config ( void )
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	
-	RCC_APB2PeriphClockCmd ( RCC_APB2Periph_AFIO, ENABLE );
+	//RCC_APB2PeriphClockCmd ( RCC_APB2Periph_AFIO, ENABLE );
 	
 	
 	RCC_APB2PeriphClockCmd ( RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );

@@ -14,8 +14,6 @@ void motor_init(){
   GPIO_Init(MOTOR2_MAG_GPIOx, &GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Pin = MOTOR3_MAG_Pin;
   GPIO_Init(MOTOR3_MAG_GPIOx, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = MOTOR4_MAG_Pin;
-  GPIO_Init(MOTOR4_MAG_GPIOx, &GPIO_InitStructure);
 	
 	//DIR Pins
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
@@ -27,8 +25,6 @@ void motor_init(){
   GPIO_Init(MOTOR2_DIR_GPIOx, &GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Pin = MOTOR3_DIR_Pin;
   GPIO_Init(MOTOR3_DIR_GPIOx, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = MOTOR4_DIR_Pin;
-  GPIO_Init(MOTOR4_DIR_GPIOx, &GPIO_InitStructure);
 	
 	MOTOR_TIM_RCC_init();
 	
@@ -58,9 +54,6 @@ void motor_init(){
 	TIM_OC2PreloadConfig(MOTOR_TIM, TIM_OCPreload_Enable);
 	TIM_OC3Init(MOTOR_TIM, &TIM_OCInitStructure);
 	TIM_OC3PreloadConfig(MOTOR_TIM, TIM_OCPreload_Enable);
-	TIM_OC4Init(MOTOR_TIM, &TIM_OCInitStructure);
-	TIM_OC4PreloadConfig(MOTOR_TIM, TIM_OCPreload_Enable);
-
 
 	TIM_ARRPreloadConfig(MOTOR_TIM, ENABLE);
 
@@ -70,7 +63,6 @@ void motor_init(){
 	motor_set_power(MOTOR_1, 0);
 	motor_set_power(MOTOR_2, 0);
 	motor_set_power(MOTOR_3, 0);
-	motor_set_power(MOTOR_4, 0);
 }
 
 void motor_set_power(MotorID motor, s32 power){
@@ -82,23 +74,18 @@ void motor_set_power(MotorID motor, s32 power){
 	
 	switch(motor){
 		case MOTOR_1:
-			TIM_SetCompare1(MOTOR_TIM, power);
+			TIM_SetCompare1(MOTOR_TIM, MAX_PWM_OUTPUT-power);
 			GPIO_WriteBit(MOTOR1_DIR_GPIOx, MOTOR1_DIR_Pin, (BitAction)direction);
 			break;
 		
 		case MOTOR_2:
-			TIM_SetCompare2(MOTOR_TIM, power);
+			TIM_SetCompare2(MOTOR_TIM, MAX_PWM_OUTPUT-power);
 			GPIO_WriteBit(MOTOR2_DIR_GPIOx, MOTOR2_DIR_Pin, (BitAction)direction);
 			break;
 		
 		case MOTOR_3:
-			TIM_SetCompare3(MOTOR_TIM, power);
+			TIM_SetCompare3(MOTOR_TIM, MAX_PWM_OUTPUT-power);
 			GPIO_WriteBit(MOTOR3_DIR_GPIOx, MOTOR3_DIR_Pin, (BitAction)direction);
-			break;
-		
-		case MOTOR_4:
-			TIM_SetCompare4(MOTOR_TIM, power);
-			GPIO_WriteBit(MOTOR4_DIR_GPIOx, MOTOR4_DIR_Pin, (BitAction)direction);
 			break;
 	}
 }

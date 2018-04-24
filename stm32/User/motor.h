@@ -15,30 +15,24 @@
 #define MOTOR1_MAG_GPIOx					GPIOA
 #define MOTOR1_MAG_Pin						GPIO_Pin_6
 #define MOTOR1_DIR_GPIOx					GPIOC
-#define MOTOR1_DIR_Pin						GPIO_Pin_8
+#define MOTOR1_DIR_Pin						GPIO_Pin_10
 
 #define MOTOR2_MAG_GPIOx					GPIOA
 #define MOTOR2_MAG_Pin						GPIO_Pin_7
 #define MOTOR2_DIR_GPIOx					GPIOC
-#define MOTOR2_DIR_Pin						GPIO_Pin_9
+#define MOTOR2_DIR_Pin						GPIO_Pin_10
 
 #define MOTOR3_MAG_GPIOx					GPIOB
 #define MOTOR3_MAG_Pin						GPIO_Pin_0
 #define MOTOR3_DIR_GPIOx					GPIOC
 #define MOTOR3_DIR_Pin						GPIO_Pin_10
 
-#define MOTOR4_MAG_GPIOx					GPIOB
-#define MOTOR4_MAG_Pin						GPIO_Pin_1
-#define MOTOR4_DIR_GPIOx					GPIOC
-#define MOTOR4_DIR_Pin						GPIO_Pin_11
-
 #define MOTOR_COUNT 3
 
 typedef enum{
 	MOTOR_1, 
 	MOTOR_2, 
-	MOTOR_3, 
-	MOTOR_4
+	MOTOR_3
 }MotorID;
 
 void motor_init(void);

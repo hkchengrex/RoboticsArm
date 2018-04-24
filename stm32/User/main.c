@@ -8,6 +8,8 @@
 
 #include "encoder.h"
 #include "motor.h"
+#include "servo.h"
+#include "control.h"
 
 #include "cam/bsp_ov7725.h"
 #include "cam/bsp_sccb.h"
@@ -16,15 +18,16 @@
 
 int main(void)
 {
+	gpio_rcc_init_all();
+	
 	//provided
   LCD_INIT();
 	
-	//my init
-	gpio_rcc_init_all();
 	ticks_init();
-	led_init();
+	//led_init();
 	encoder_init();
 	motor_init();
+	servo_init();
 	
 	OV7725_GPIO_Config();
 	while(OV7725_Init() != SUCCESS);
@@ -42,6 +45,7 @@ int main(void)
 														cam_mode.cam_height,
 														cam_mode.QVGA_VGA);
 	
+	motor_set_pos(MOTOR_1, 10000);
   while (1) {
 		u32 this_ticks = get_ticks();
 		
@@ -59,11 +63,23 @@ int main(void)
 			LCD_Printf(0, 1, "P: %d V: %d", encoder_cnt[0], encoder_vel[0]);
 			LCD_Printf(0, 2, "P: %d V: %d", encoder_cnt[1], encoder_vel[1]);
 			LCD_Printf(0, 3, "P: %d V: %d", encoder_cnt[2], encoder_vel[2]);
-			LCD_Printf(0, 4, "X: %d Y: %d", locate_x, locate_y);
-			LCD_Printf(0, 5, "Value: %d", CameraData[locate_x][locate_y]);
+			LCD_Printf(0, 4, "P: %d V:%d", motor_tar_pos[0], motor_tar_vel[0]);
+			LCD_Printf(0, 5, "P: %d", motor_pwm_value[0]);
+			LCD_Printf(0, 6, "X: %d Y: %d", locate_x, locate_y);
+			LCD_Printf(0, 7, "Value: %d", CameraData[locate_x][locate_y]);
 			LCD_Update();
 			
 			last_flash_ticks = this_ticks;
+			
+			servo_set_deg(SERVO_1, (this_ticks%2000)*180/2000);
+			servo_set_deg(SERVO_2, (this_ticks%2000)*180/2000);
+		}
+		
+		static s32 last_ctrl_ticks = 0;
+		if (this_ticks - last_ctrl_ticks >= (1000/CONTROL_FREQ)){
+			encoder_update();
+			control_update();
+			last_ctrl_ticks = this_ticks;
 		}
 
 		static s32 last_cam_ticks = 0;
