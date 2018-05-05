@@ -20,12 +20,12 @@
 #define MOTOR2_MAG_GPIOx					GPIOA
 #define MOTOR2_MAG_Pin						GPIO_Pin_7
 #define MOTOR2_DIR_GPIOx					GPIOC
-#define MOTOR2_DIR_Pin						GPIO_Pin_10
+#define MOTOR2_DIR_Pin						GPIO_Pin_12
 
 #define MOTOR3_MAG_GPIOx					GPIOB
 #define MOTOR3_MAG_Pin						GPIO_Pin_0
-#define MOTOR3_DIR_GPIOx					GPIOC
-#define MOTOR3_DIR_Pin						GPIO_Pin_10
+#define MOTOR3_DIR_GPIOx					GPIOA
+#define MOTOR3_DIR_Pin						GPIO_Pin_11
 
 #define MOTOR_COUNT 3
 

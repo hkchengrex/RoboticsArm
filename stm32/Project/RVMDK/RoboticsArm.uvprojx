@@ -560,6 +560,11 @@
               <FilePath>..\..\User\define.h</FilePath>
             </File>
             <File>
+              <FileName>button.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\button.c</FilePath>
+            </File>
+            <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\led.c</FilePath>

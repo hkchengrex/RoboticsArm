@@ -20,7 +20,7 @@ void servo_init(){
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 	
-	//TIM_DeInit(SERVO_TIM);
+	TIM_DeInit(SERVO_TIM);
 	
 	TIM_TimeBaseStructure.TIM_Period = 20000;
 	TIM_TimeBaseStructure.TIM_ClockDivision =  TIM_CKD_DIV1;
@@ -41,30 +41,24 @@ void servo_init(){
 	
 	TIM_OC2Init(SERVO_TIM, &TIM_OCInitStructure);
 	TIM_OC2PreloadConfig(SERVO_TIM, TIM_OCPreload_Enable);
-	
-	TIM_OC3Init(SERVO_TIM, &TIM_OCInitStructure);
-	TIM_OC3PreloadConfig(SERVO_TIM, TIM_OCPreload_Enable);
-	
-	TIM_OC4Init(SERVO_TIM, &TIM_OCInitStructure);
-	TIM_OC4PreloadConfig(SERVO_TIM, TIM_OCPreload_Enable);
 
 	TIM_ARRPreloadConfig(SERVO_TIM, ENABLE);
 
 	TIM_Cmd(SERVO_TIM, ENABLE);
 	TIM_CtrlPWMOutputs(SERVO_TIM, ENABLE);
 	
-	servo_set_deg(SERVO_1, 80);
-	servo_set_deg(SERVO_2, 100);
+	//servo_set_deg(SERVO_1, 80);
+	//servo_set_deg(SERVO_2, 100);
 }
 
 void servo_set_deg(ServoID servo, s32 deg){
 	switch(servo){
 		case SERVO_1:
-			TIM_SetCompare1(SERVO_TIM, deg*1200/180 + 900);
+			TIM_SetCompare1(SERVO_TIM, deg);
 			break;
 		
 		case SERVO_2:
-			TIM_SetCompare2(SERVO_TIM, deg*1200/180 + 900);
+			TIM_SetCompare2(SERVO_TIM, deg);
 			break;
 	}
 }
