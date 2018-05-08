@@ -1,6 +1,7 @@
 #include "ticks.h"
 #include "control.h"
 #include "encoder.h"
+#include "servo.h"
 
 volatile u32 ms_ticks = 0;
 
@@ -10,7 +11,7 @@ void ticks_init(void){
 	RCC_APB1PeriphClockCmd(TICKS_RCC, ENABLE);
 	
 	TIM_TimeBaseStructure.TIM_Period = 1000;
-	TIM_TimeBaseStructure.TIM_Prescaler = 143; 
+	TIM_TimeBaseStructure.TIM_Prescaler = 71; 
 	TIM_TimeBaseInit(TICKS_TIM, &TIM_TimeBaseStructure); 
 	
 	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
@@ -35,6 +36,7 @@ TICKS_IRQHandler{
 //		//encoder_update();
 //		//control_update();
 //	}
+	servo_update();
 	
 	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
 }

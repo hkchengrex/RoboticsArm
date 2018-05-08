@@ -14,7 +14,6 @@ extern volatile s32 motor_tar_vel[MOTOR_COUNT];
 extern volatile s32 motor_vel_remain[MOTOR_COUNT];
 extern volatile s32 motor_pos_remain[MOTOR_COUNT];
 
-extern volatile s32 motor_pwm_value[MOTOR_COUNT];
 extern volatile u8 motor_arrived[MOTOR_COUNT];
 extern volatile u8 motor_control_on[MOTOR_COUNT];
 

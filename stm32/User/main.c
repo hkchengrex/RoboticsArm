@@ -17,22 +17,26 @@
 #include "button.h"
 #include "cam_algo.h"
 
-static s32 motor_init_pos[MOTOR_COUNT] = {-540, -300, -300};
-static s32 motor_pos_1[MOTOR_COUNT] = {-800, -300, -600};
-static s32 motor_pos_2[MOTOR_COUNT] = {-400, -450, -400};
+static s32 motor_init_pos[MOTOR_COUNT] = {-540, 300, -300};
+static s32 motor_pos_1[MOTOR_COUNT] = {-800, 100, -1200};
+static s32 motor_pos_2[MOTOR_COUNT] = {-100, 300, -100};
+static s32 motor_init_pwm[MOTOR_COUNT] = {9000, -5500, 5500};
+
+static s32 servo_deg_1[2] = {60, 90};
+static s32 servo_deg_2[2] = {90, 45};
 
 int main(void)
 {
 	gpio_rcc_init_all();
 
 	//provided
-  LCD_INIT();
+	LCD_INIT();
 	
 	ticks_init();
-	//led_init();
 	encoder_init();
 	motor_init();
 	button_init();
+	servo_init();
 	
 	OV7725_GPIO_Config();
 	while(OV7725_Init() != SUCCESS);
@@ -50,142 +54,148 @@ int main(void)
 														cam_mode.cam_height,
 														cam_mode.QVGA_VGA);
 	
-	servo_init();
-	
-	motor_set_pos(MOTOR_1, 2000);
   while (1) {
 		u32 this_ticks = get_ticks();
 		
-		static u32 last_led_ticks = 0;
-		if (this_ticks - last_led_ticks >= 200){
-			//led_blink(LED_GREEN);
-			last_led_ticks = this_ticks;
-		}
+		static u32 last_ticks = 0;
+		if (this_ticks == last_ticks) continue;
+		last_ticks = this_ticks;
 		
-		static s32 last_ctrl_ticks = 0;
-		/**
-		* 0 - init motor 3
-		* 1 - init motor 1
-		* 2 - init motor 2
-		* 3 - motor 2 restore
-		* 4 - motor 3 restore
-		* 5 - motor 1 restore
-		* 6 - Ready
-		*/
-		static u8 motor_init_state = 0;
-		if (this_ticks - last_ctrl_ticks >= (1000/CONTROL_FREQ)){
+//		static u32 last_led_ticks = 0;
+//		if (this_ticks - last_led_ticks >= 200){
+//			//led_blink(LED_GREEN);
+//			last_led_ticks = this_ticks;
+//		}
+//		
+//		static s32 last_ctrl_ticks = 0;
+//		/**
+//		* 0 - init motor 3
+//		* 1 - init motor 1
+//		* 2 - init motor 2
+//		* 3 - motor 2 restore
+//		* 4 - motor 3 restore
+//		* 5 - motor 1 restore
+//		* 6 - Ready
+//		*/
+//		static u8 motor_init_state = 0;
+//		if (this_ticks - last_ctrl_ticks >= (1000/CONTROL_FREQ)){
 			encoder_update();
-			switch(motor_init_state){
-				case 0:
-					motor_control_on[MOTOR_1] = 0;
-					motor_control_on[MOTOR_2] = 0;
-					motor_control_on[MOTOR_3] = 0;
-					motor_set_power(MOTOR_1, 0);
-					motor_set_power(MOTOR_2, 0);
-					motor_set_power(MOTOR_3, 3500);
-					if (!GPIO_ReadInputDataBit(ENCODER_3_RESET_PORT, ENCODER_3_RESET_PIN)){
-						motor_init_state++;
-						motor_set_power(MOTOR_3, 0);
-						encoder_reset(ENCODER_3);
-					}
-					break;
-				case 1:
-					motor_set_power(MOTOR_1, 3500);
-					motor_set_power(MOTOR_2, 0);
-					motor_set_power(MOTOR_3, 0);
-					if (!GPIO_ReadInputDataBit(ENCODER_1_RESET_PORT, ENCODER_1_RESET_PIN)){
-						motor_init_state++;
-						motor_set_power(MOTOR_1, 0);
-						encoder_reset(ENCODER_1);
-					}
-					break;
-				case 2:
-					motor_set_power(MOTOR_1, 0);
-					motor_set_power(MOTOR_2, 3500);
-					motor_set_power(MOTOR_3, 0);
-					if (!GPIO_ReadInputDataBit(ENCODER_2_RESET_PORT, ENCODER_2_RESET_PIN)){
-						motor_init_state++;
-						motor_set_power(MOTOR_1, 0);
-						motor_set_power(MOTOR_2, 0);
-						motor_set_power(MOTOR_3, 0);
-						encoder_reset(ENCODER_2);
-						motor_control_on[MOTOR_2] = 1;
-						motor_set_pos(MOTOR_2, motor_init_pos[MOTOR_2]);
-					}
-					break;
-				case 3:
-					if (motor_arrived[MOTOR_2]){
-						motor_init_state++;
-						motor_control_on[MOTOR_2] = 0;
-						motor_set_power(MOTOR_2, 0);
-						
-						motor_control_on[MOTOR_1] = 1;
-						motor_set_pos(MOTOR_1, motor_init_pos[MOTOR_1]);
-					}
-					break;
-					
-				case 4:
-					if (motor_arrived[MOTOR_2]){
-						motor_init_state++;
-						motor_control_on[MOTOR_1] = 0;
-						motor_set_power(MOTOR_1, 0);
-						
-						motor_control_on[MOTOR_3] = 1;
-						motor_set_pos(MOTOR_3, motor_init_pos[MOTOR_3]);
-					}
-					break;
-					
-				case 5:
-					if (motor_arrived[MOTOR_3]){
-						motor_init_state++;
-						motor_control_on[MOTOR_1] = 1;
-						motor_control_on[MOTOR_2] = 1;
-						motor_control_on[MOTOR_3] = 1;
-					}
-					break;
-					
-				case 6:
-					//Demo
-					if (button_pressed(BUTTON_K1)){
-						motor_set_pos(MOTOR_1, motor_pos_1[MOTOR_1]);
-						motor_set_pos(MOTOR_2, motor_pos_1[MOTOR_2]);
-						motor_set_pos(MOTOR_3, motor_pos_1[MOTOR_3]);
-					}else if (button_pressed(BUTTON_K2)){
-						motor_set_pos(MOTOR_1, motor_pos_2[MOTOR_1]);
-						motor_set_pos(MOTOR_2, motor_pos_2[MOTOR_2]);
-						motor_set_pos(MOTOR_3, motor_pos_2[MOTOR_3]);
-					}
-			}
+//			switch(motor_init_state){
+//				case 0:
+//					motor_control_on[MOTOR_1] = 0;
+//					motor_control_on[MOTOR_2] = 0;
+//					motor_control_on[MOTOR_3] = 0;
+//					motor_set_power(MOTOR_1, 0);
+//					motor_set_power(MOTOR_2, 0);
+//					motor_set_power(MOTOR_3, motor_init_pwm[MOTOR_3]);
+//					if (!GPIO_ReadInputDataBit(ENCODER_3_RESET_PORT, ENCODER_3_RESET_PIN)){
+//						motor_init_state++;
+//						motor_set_power(MOTOR_3, 0);
+//						encoder_reset(ENCODER_3);
+//					}
+//					break;
+//				case 1:
+//					motor_set_power(MOTOR_1, motor_init_pwm[MOTOR_1]);
+//					motor_set_power(MOTOR_2, 0);
+//					motor_set_power(MOTOR_3, 0);
+//					if (!GPIO_ReadInputDataBit(ENCODER_1_RESET_PORT, ENCODER_1_RESET_PIN)){
+//						motor_init_state++;
+//						motor_set_power(MOTOR_1, 0);
+//						encoder_reset(ENCODER_1);
+//					}
+//					break;
+//				case 2:
+//					motor_set_power(MOTOR_1, 0);
+//					motor_set_power(MOTOR_2, motor_init_pwm[MOTOR_2]);
+//					motor_set_power(MOTOR_3, 0);
+//					if (!GPIO_ReadInputDataBit(ENCODER_2_RESET_PORT, ENCODER_2_RESET_PIN)){
+//						motor_init_state++;
+//						motor_set_power(MOTOR_1, 0);
+//						motor_set_power(MOTOR_2, 0);
+//						motor_set_power(MOTOR_3, 0);
+//						encoder_reset(ENCODER_2);
+//						motor_control_on[MOTOR_2] = 1;
+//						motor_set_pos(MOTOR_2, motor_init_pos[MOTOR_2]);
+//					}
+//					break;
+//				case 3:
+//					if (motor_arrived[MOTOR_2]){
+//						motor_init_state++;
+//						motor_control_on[MOTOR_2] = 0;
+//						motor_set_power(MOTOR_2, 0);
+//						
+//						motor_control_on[MOTOR_1] = 1;
+//						motor_set_pos(MOTOR_1, motor_init_pos[MOTOR_1]);
+//					}
+//					break;
+//					
+//				case 4:
+//					if (motor_arrived[MOTOR_2]){
+//						motor_init_state++;
+//						motor_control_on[MOTOR_1] = 0;
+//						motor_set_power(MOTOR_1, 0);
+//						
+//						motor_control_on[MOTOR_3] = 1;
+//						motor_set_pos(MOTOR_3, motor_init_pos[MOTOR_3]);
+//					}
+//					break;
+//					
+//				case 5:
+//					if (motor_arrived[MOTOR_3]){
+//						motor_init_state++;
+//						motor_control_on[MOTOR_1] = 1;
+//						motor_control_on[MOTOR_2] = 1;
+//						motor_control_on[MOTOR_3] = 1;
+//					}
+//					break;
+//					
+//				case 6:
+//					//Demo
+//					if (button_pressed(BUTTON_K1)){
+//						//motor_set_pos(MOTOR_1, motor_pos_1[MOTOR_1]);
+//						//motor_set_pos(MOTOR_2, motor_pos_1[MOTOR_2]);
+//						//motor_set_pos(MOTOR_3, motor_pos_1[MOTOR_3]);
+//						
+//						//servo_set_deg(SERVO_1, servo_deg_1[SERVO_1]);
+//						//servo_set_deg(SERVO_2, servo_deg_1[SERVO_2]);
+//					}else if (button_pressed(BUTTON_K2)){
+//						//motor_set_pos(MOTOR_1, motor_pos_2[MOTOR_1]);
+//						//motor_set_pos(MOTOR_2, motor_pos_2[MOTOR_2]);
+//						//motor_set_pos(MOTOR_3, motor_pos_2[MOTOR_3]);
+//						
+//						//servo_set_deg(SERVO_1, servo_deg_2[SERVO_1]);
+//						//servo_set_deg(SERVO_2, servo_deg_2[SERVO_2]);
+//					}
+//			}
 
-			control_update();			
-			last_ctrl_ticks = this_ticks;
-		}
+//			control_update();			
+//			last_ctrl_ticks = this_ticks;
+//		}
 
 		static u16 locate_x = 0, locate_y = 0;
 		static u32 last_flash_ticks = 0;
 		if (this_ticks - last_flash_ticks >= 50){
 			LCD_Clear();
 			LCD_Printf(0, 0, "%d", this_ticks);
-			LCD_Printf(0, 1, "P: %d V: %d", encoder_cnt[0], encoder_vel[0]);
-			LCD_Printf(0, 2, "P: %d V: %d", encoder_cnt[1], encoder_vel[1]);
-			LCD_Printf(0, 3, "P: %d V: %d", encoder_cnt[2], encoder_vel[2]);
-			LCD_Printf(0, 4, "P: %d V:%d", motor_tar_pos[0], motor_tar_vel[0]);
-			LCD_Printf(0, 5, "X: %d Y: %d", locate_x, locate_y);
-			LCD_Printf(0, 6, "Value: %d", CameraData[locate_x][locate_y]);
-			LCD_Printf(0, 7, "S:%d %d %d %d", motor_init_state, GPIO_ReadInputDataBit(ENCODER_1_RESET_PORT, ENCODER_1_RESET_PIN),
-													button_pressed(BUTTON_K1), button_pressed(BUTTON_K2));
+			LCD_Printf(0, 1, "P:%d V:%d W:%d", encoder_cnt[0], encoder_vel[0], motor_pwm_value[0]);
+			LCD_Printf(0, 2, "P:%d V:%d W:%d", encoder_cnt[1], encoder_vel[1], motor_pwm_value[1]);
+			LCD_Printf(0, 3, "P:%d V:%d W:%d", encoder_cnt[2], encoder_vel[2], motor_pwm_value[2]);
+			LCD_Printf(0, 4, "X: %d Y: %d", locate_x, locate_y);
+			LCD_Printf(0, 5, "Value: %d", CameraData[locate_x][locate_y]);
+//			LCD_Printf(0, 6, "S:%d %d %d %d", motor_init_state, GPIO_ReadInputDataBit(ENCODER_1_RESET_PORT, ENCODER_1_RESET_PIN),
+//													button_pressed(BUTTON_K1), button_pressed(BUTTON_K2));
 			LCD_Update();
 			
 			last_flash_ticks = this_ticks;
 		}
 		
 		if (button_pressed(BUTTON_K1)){
-			servo_set_deg(SERVO_1, 1000);
-			servo_set_deg(SERVO_2, 2000);
+			servo_set_deg(SERVO_1, 45);
+			servo_set_deg(SERVO_2, 1);
 			//while(1){}
 		}else if (button_pressed(BUTTON_K2)){
-			servo_set_deg(SERVO_1, 2000);
-			servo_set_deg(SERVO_2, 3100);
+			servo_set_deg(SERVO_1, 60);
+			servo_set_deg(SERVO_2, 2);
 			//while(1){}
 		}
 		

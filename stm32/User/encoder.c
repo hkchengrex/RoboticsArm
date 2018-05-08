@@ -40,6 +40,12 @@ void encoder_init(){
 	
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
 	NVIC_Init(&NVIC_InitStructure);	
+	
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+	NVIC_Init(&NVIC_InitStructure);	
+	
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+	NVIC_Init(&NVIC_InitStructure);	
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
@@ -164,5 +170,47 @@ void EXTI4_IRQHandler(void){
 		lastReading[1][1] = bReading;
 		
 		EXTI_ClearITPendingBit(ENCODER_2_A_LINE);
+	}
+}
+
+void EXTI1_IRQHandler(void){
+	if (EXTI_GetITStatus(ENCODER_3_A_LINE) != RESET) {
+		u8 aReading, bReading;
+		aReading = GPIO_ReadInputDataBit(ENCODER_3_A_PORT, ENCODER_3_A_PIN);
+		bReading = GPIO_ReadInputDataBit(ENCODER_3_B_PORT, ENCODER_3_B_PIN);
+
+		if (bReading ^ lastReading[2][0]){
+			temp_enc_store[2]++;
+		}
+		
+		if (aReading ^ lastReading[2][1]){
+			temp_enc_store[2]--;
+		}
+		
+		lastReading[2][0] = aReading;
+		lastReading[2][1] = bReading;
+		
+		EXTI_ClearITPendingBit(ENCODER_3_A_LINE);
+	}
+}
+
+void EXTI2_IRQHandler(void){
+	if (EXTI_GetITStatus(ENCODER_3_B_LINE) != RESET) {
+		u8 aReading, bReading;
+		aReading = GPIO_ReadInputDataBit(ENCODER_3_A_PORT, ENCODER_3_A_PIN);
+		bReading = GPIO_ReadInputDataBit(ENCODER_3_B_PORT, ENCODER_3_B_PIN);
+
+		if (bReading ^ lastReading[2][0]){
+			temp_enc_store[2]++;
+		}
+		
+		if (aReading ^ lastReading[2][1]){
+			temp_enc_store[2]--;
+		}
+		
+		lastReading[2][0] = aReading;
+		lastReading[2][1] = bReading;
+		
+		EXTI_ClearITPendingBit(ENCODER_3_B_LINE);
 	}
 }

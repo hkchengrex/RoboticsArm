@@ -1,6 +1,8 @@
 #include "motor.h"
 #include "mymath.h"
 
+volatile s32 motor_pwm_value[MOTOR_COUNT] = {0, 0, 0};
+
 void motor_init(){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -68,6 +70,8 @@ void motor_init(){
 void motor_set_power(MotorID motor, s32 power){
 	u8 direction = 0;
 	if (power < 0) direction = 1;
+	
+	motor_pwm_value[motor] = power;
 	
 	power = ABS(power);
 	if (power > MAX_PWM_OUTPUT) power = MAX_PWM_OUTPUT;

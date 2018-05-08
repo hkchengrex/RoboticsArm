@@ -15,9 +15,9 @@ volatile s32 motor_pos_remain[MOTOR_COUNT] = {0, 0, 0};
 volatile u8 motor_arrived[MOTOR_COUNT] = {0};
 volatile u8 motor_control_on[MOTOR_COUNT] = {0};
 
-static const s32 PID_KP[MOTOR_COUNT] = {650, 1500, 800};
+static const s32 PID_KP[MOTOR_COUNT] = {650, 1500, 600};
 static const s32 PID_KI[MOTOR_COUNT] = {0, 14, 0};
-static const s32 PID_KD[MOTOR_COUNT] = {22, 90, 22};
+static const s32 PID_KD[MOTOR_COUNT] = {180, 220, 182};
 
 #define PID_SCALE (32)
 #define MAX_I (128)
@@ -25,7 +25,6 @@ static const s32 PID_KD[MOTOR_COUNT] = {22, 90, 22};
 #define THRESHOLD 30
 
 volatile s32 inte_err[MOTOR_COUNT] = {0, 0, 0};
-volatile s32 motor_pwm_value[MOTOR_COUNT] = {0, 0, 0};
 
 void control_update(){
 	for (u8 i=0; i<MOTOR_COUNT; i++){
@@ -34,6 +33,7 @@ void control_update(){
 			s32 cur_vel = encoder_vel[i];
 			s32 err = motor_final_pos[i] - cur_pos;
 			s32 s_at_decel = (motor_max_v[i]*motor_max_v[i])/2/motor_accel[i];
+			s32 pwm = 0;
 			
 			if (ABS(err) > THRESHOLD){
 				motor_arrived[i] = 0;
@@ -66,14 +66,14 @@ void control_update(){
 				inte_err[i] = CAP(inte_err[i], -MAX_I, MAX_I);
 				
 				s32 duty = (PID_KP[i]*curr_err + PID_KI[i]*inte_err[i] + PID_KD[i]*diff_err)/PID_SCALE;
-				motor_pwm_value[i] = CAP(duty, -MAX_PWM, MAX_PWM);
+				pwm = CAP(duty, -MAX_PWM, MAX_PWM);
 				
 			}else{
 				motor_arrived[i] = 1;
-				motor_pwm_value[i] = 0;
+				pwm = 0;
 			}
 			
-			motor_set_power((MotorID)i, (s32)motor_pwm_value[i]);
+			motor_set_power((MotorID)i, pwm);
 			//motor_set_power((MotorID)i, -10000);
 		}
 	}

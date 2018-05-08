@@ -1,6 +1,8 @@
 # UI config files
 *.uvguix.*
 
+*.tmp
+
 # Prerequisites
 *.d
 

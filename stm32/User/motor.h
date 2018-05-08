@@ -29,6 +29,8 @@
 
 #define MOTOR_COUNT 3
 
+extern volatile s32 motor_pwm_value[MOTOR_COUNT];
+
 typedef enum{
 	MOTOR_1, 
 	MOTOR_2, 

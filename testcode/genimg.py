@@ -28,7 +28,11 @@ for y in range(grid):
             data //= 2
 
 im = im.rotate(10)
-im.show()
+
+base = Image.new('RGB', (256, 256), (128, 128, 128));
+base.paste(im, (128, 128))
+base = base.resize((width, height))
+base.show()
 
 print("#define IMAGE_WIDTH %d" % width)
 print("#define IMAGE_HEIGHT %d" % height)
