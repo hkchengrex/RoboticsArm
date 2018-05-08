@@ -18,8 +18,8 @@ b_grid = Image.new('RGB', (grid_width, grid_height), (0, 0, 0))
 
 data = 238
 
-for x in range(grid):
-    for y in range(grid):
+for y in range(grid):
+    for x in range(grid):
         if (y == 0 and (x == 0 or x == grid - 1)) or (y == grid - 1 and x == 0):
             im.paste(r_grid, (x*grid_width, y*grid_height))
         else:
@@ -27,6 +27,7 @@ for x in range(grid):
                 im.paste(b_grid, (x*grid_width, y*grid_height))
             data //= 2
 
+im = im.rotate(10)
 im.show()
 
 print("#define IMAGE_WIDTH %d" % width)
@@ -37,8 +38,8 @@ print('{')
 for i in range(width):
     print('{', end='')
     for j in range(height):
-        pixel = im.getpixel((i, j))
-        if pixel[0]+pixel[1]+pixel[2] > 400:
+        pixel = im.getpixel((j, i))
+        if pixel[0]+pixel[1]+pixel[2] > 384:
             value =  2
         elif pixel[0] > 128:
             value = 1
