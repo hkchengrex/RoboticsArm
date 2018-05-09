@@ -179,6 +179,9 @@ s16 int_arc_tan2(s32 y, s32 x)
   * @retval Scaled value of 1024*sqrt(v) limiting input to ~2^48
   */
 u32 Sqrt(s64 v){
+	
+	if (v==0) return 0;
+	
 	union
 	{
 		u32 tmp;

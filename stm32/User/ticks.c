@@ -4,6 +4,7 @@
 #include "servo.h"
 
 volatile u32 ms_ticks = 0;
+volatile u32 int_ticks = 0;
 
 void ticks_init(void){
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -26,6 +27,7 @@ void ticks_init(void){
 }
 
 TICKS_IRQHandler{
+	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
 	//What is ticking? 
 	//Is it you, or is it the universe itself?
 	//What defines time?
@@ -37,6 +39,4 @@ TICKS_IRQHandler{
 //		//control_update();
 //	}
 	servo_update();
-	
-	TIM_ClearITPendingBit(TICKS_TIM, TIM_IT_Update);
 }

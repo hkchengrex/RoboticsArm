@@ -6,7 +6,7 @@
 #define SEARCH_RED_STEP 2
 #define DIST_THRE 30
 
-#define CENTER_DIST_DIFF_THRE 20
+#define CENTER_DIST_DIFF_THRE 10
 #define NUM_OF_GRIDS 5
 
 #define s8 int8_t
@@ -25,12 +25,19 @@
 #define MAN_DIST(p1, p2) (ABS(p1.x-p2.x) + ABS(p1.y-p2.y))
 #define DIST_TIMES_16(p1, p2) (Sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)) / 64)
 
+typedef struct{
+    s16 x;
+    s16 y;
+} Point;
+
 /**
   * @brief  Rapid sqrt approximation with maximum 0.297944% deviation at sqrt(2) and average 0.0184811% deviation
   * @param  v:	Input limited to 1125899906840000 (2^50)
   * @retval Scaled value of 1024*sqrt(v) limiting input to ~2^48
   */
 u32 Sqrt(s64 v){
+    if (v == 0) return 0;
+
 	union
 	{
 		u32 tmp;
@@ -47,11 +54,32 @@ u32 Sqrt(s64 v){
 	return u.tmp * 8;
 }
 
+Point double_recur_center(const Point p, u8 and_tar){
+    //First recur on y line
+    Point np;
+    np.x = p.x;
+    np.y = p.y;
+    
+    s16 tmp_max_y = np.y;
+    while(tmp_max_y < IMAGE_HEIGHT && (im[tmp_max_y][np.x] & and_tar)){
+        tmp_max_y++;
+    }
+    while(np.y >= 0 && (im[np.y][np.x] & and_tar)){
+        np.y--;
+    }
+    np.y = (np.y + tmp_max_y) / 2;
 
-typedef struct{
-    s16 x;
-    s16 y;
-} Point;
+    s16 tmp_max_x = np.x;
+    while(tmp_max_x < IMAGE_WIDTH && (im[np.y][tmp_max_x] & and_tar)){
+        tmp_max_x++;
+    }
+    while(np.x >= 0 && (im[np.y][np.x] & and_tar)){
+        np.x--;
+    }
+    np.x = (tmp_max_x + np.x) / 2;
+
+    return np;
+}
 
 Point red_located[MAX_RED_TO_BE_FOUND] = {0};
 u8 cur_red_located_pt = 0;
@@ -67,9 +95,10 @@ int main(int argc, char* argv[]){
                 if (cur_red_located_pt < MAX_RED_TO_BE_FOUND){
                     //Check for closeness, reject too close
                     u8 passed = 1;
-                    Point p;
-                    p.x = x;
-                    p.y = y;
+                    Point tp;
+                    tp.x = x;
+                    tp.y = y;
+                    Point p = double_recur_center(tp, 1);
                     for (int i=0; i<cur_red_located_pt; i++){
                         s32 dist = DIST_TIMES_16(p, red_located[i]);
                         if (dist/16 < DIST_THRE){
@@ -118,8 +147,15 @@ int main(int argc, char* argv[]){
                 if (ABS(rel_dist[i][k] - rel_dist[i][j])/16 < CENTER_DIST_DIFF_THRE){
                     center_found = 1;
                     pc = i;
-                    p2 = j;
-                    p1 = k;
+                    //a dot b
+                    if ((red_located[j].x - red_located[pc].x)*(red_located[k].x - red_located[pc].x) + 
+                    (red_located[j].y -  - red_located[pc].y)*(red_located[k].y -  - red_located[pc].y) < 0){
+                        p2 = j;
+                        p1 = k;
+                    }else{
+                        p1 = j;
+                        p2 = k;
+                    }
                     break;
                 }
             }
@@ -147,12 +183,12 @@ int main(int argc, char* argv[]){
                 look.x = red_located[pc].x + p1_min_pc.x * xIdx / (NUM_OF_GRIDS-1) + p2_min_pc.x * yIdx / (NUM_OF_GRIDS-1);
                 look.y = red_located[pc].y + p1_min_pc.y * xIdx / (NUM_OF_GRIDS-1) + p2_min_pc.y * yIdx / (NUM_OF_GRIDS-1);
                 //Determine White/Black
-                printf("Look: %d %d\n", look.x, look.y);
+                
                 if (im[look.y][look.x] & 2){
                     data += one_at_front;
-                    printf("1");
+                    printf("Look: %4d %4d 1\n", look.x, look.y);
                 }else{
-                    printf("0");
+                    printf("Look: %4d %4d 0\n", look.x, look.y);
                 }
                 data >>= 1;
             }

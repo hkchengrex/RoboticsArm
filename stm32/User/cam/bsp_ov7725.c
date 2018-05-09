@@ -32,11 +32,11 @@ OV7725_MODE_PARAM cam_mode =
 	.cam_sx = 0,
 	.cam_sy = 0,	
 	
-	.cam_width = CAM_WIDTH,
-	.cam_height = CAM_HEIGHT,
+	.cam_width = CAM_WIDTH*2,
+	.cam_height = CAM_HEIGHT*2,
 	
 	.lcd_sx = 10,
-	.lcd_sy = 180,
+	.lcd_sy = 170,
 	.lcd_scan = 3, //LCD扫描模式，本横屏配置可用1、3、5、7模式
 	
 	//以下可根据自己的需要调整，参数范围见结构体类型定义	
@@ -758,27 +758,56 @@ void OV7725_Window_VGA_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t heigh
 	* @param  height:显示窗口高度，要求跟OV7725_Window_Set函数中的height一致
   * @retval 无
   */
-volatile uint8_t CameraData[CAM_WIDTH][CAM_HEIGHT];
-void ImagLoadAndDisp(uint16_t sx, uint16_t sy, uint16_t mode)
+volatile uint8_t CameraData[CAM_HEIGHT][CAM_WIDTH];
+void ImageLoad(uint16_t sx, uint16_t sy, uint16_t mode)
 {
 	uint16_t i, j;
 	uint16_t tempData;
 
+	//LCD_OpenWindow(sx, sy, CAM_WIDTH, CAM_HEIGHT);
+	//LCD_Write_Cmd(CMD_SetPixel);
+
+	for(i = 0; i < CAM_WIDTH * 2; i++)
+	{
+		for(j = 0; j < CAM_HEIGHT * 2; j++)
+		{
+			READ_FIFO_PIXEL(tempData);		/* 从FIFO读出一个rgb565像素到Camera_Data变量 */
+			if (i%2 ==0 && j%2==0){
+				//LCD_Write_Data(tempData);
+				if (mode == READ_RED){
+					u16 r = (tempData >> 11) & 0x1F;
+					u16 g = (tempData >> 6) & 0x1F;
+					u16 b = (tempData) & 0x1F;
+					s32 sum = r+g+b;
+					//u8 is_r = ((r*100/(sum)) > 40) && sum > 20;
+					//u8 is_w = sum > 48;
+					//CameraData[j/2][i/2] = (is_r) | (is_w << 1);
+					CameraData[j/2][i/2] = r*32/sum;
+				}
+			}
+		}
+	}
+}
+
+void ImageDisp(uint16_t sx, uint16_t sy)
+{
+	uint16_t i, j;
+	
 	LCD_OpenWindow(sx, sy, CAM_WIDTH, CAM_HEIGHT);
 	LCD_Write_Cmd(CMD_SetPixel);
 
-	for(i = 0; i < CAM_WIDTH; i++)
+	for(j = 0; j < CAM_WIDTH; j++)
 	{
-		for(j = 0; j < CAM_HEIGHT; j++)
+		for(i = 0; i < CAM_HEIGHT; i++)
 		{
-			READ_FIFO_PIXEL(tempData);		/* 从FIFO读出一个rgb565像素到Camera_Data变量 */
-			LCD_Write_Data(tempData);
-			if (mode == READ_RED){
-				u16 r = (tempData >> 11) & 0x1F;
-				u16 g = (tempData >> 6) & 0x1F;
-				u16 b = (tempData) & 0x1F;
-				CameraData[i][j] = r * 255 / (r+g+b);
-			}
+//			if (CameraData[j][i] & 1){
+//				LCD_Write_Data(0xF800);
+//			}else if (CameraData[j][i] & 2){
+//				LCD_Write_Data(0xFFFF);
+//			}else {
+//				LCD_Write_Data(0x0000);
+//			}
+			LCD_Write_Data(CameraData[j][i] | (CameraData[j][i] << 6) | (CameraData[j][i] << 11));
 		}
 	}
 }

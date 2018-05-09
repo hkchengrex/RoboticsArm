@@ -27,12 +27,13 @@ for y in range(grid):
                 im.paste(b_grid, (x*grid_width, y*grid_height))
             data //= 2
 
-im = im.rotate(10)
+im = im.rotate(10, expand=1)
 
 base = Image.new('RGB', (256, 256), (128, 128, 128));
-base.paste(im, (128, 128))
+base.paste(im, (110, 110))
 base = base.resize((width, height))
 base.show()
+base.save('result.png')
 
 print("#define IMAGE_WIDTH %d" % width)
 print("#define IMAGE_HEIGHT %d" % height)
@@ -42,7 +43,7 @@ print('{')
 for i in range(width):
     print('{', end='')
     for j in range(height):
-        pixel = im.getpixel((j, i))
+        pixel = base.getpixel((j, i))
         if pixel[0]+pixel[1]+pixel[2] > 384:
             value =  2
         elif pixel[0] > 128:

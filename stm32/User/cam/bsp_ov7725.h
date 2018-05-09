@@ -6,7 +6,7 @@
 #define CAM_WIDTH 100
 #define CAM_HEIGHT 100
 
-extern volatile uint8_t CameraData[CAM_WIDTH][CAM_HEIGHT];
+extern volatile uint8_t CameraData[CAM_HEIGHT][CAM_WIDTH];
 
 typedef enum{
 	READ_RED
@@ -313,7 +313,8 @@ void OV7725_Special_Effect(uint8_t eff);
 void VSYNC_Init(void);				
 void OV7725_Window_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height,uint8_t QVGA_VGA);
 
-void ImagLoadAndDisp(uint16_t sx,uint16_t sy, uint16_t mode);
+void ImageLoad(uint16_t sx,uint16_t sy, uint16_t mode);
+void ImageDisp(uint16_t sx, uint16_t sy);
 
 #endif
 
