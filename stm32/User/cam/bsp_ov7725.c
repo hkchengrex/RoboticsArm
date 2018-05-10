@@ -758,7 +758,7 @@ void OV7725_Window_VGA_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t heigh
 	* @param  height:显示窗口高度，要求跟OV7725_Window_Set函数中的height一致
   * @retval 无
   */
-volatile uint8_t CameraData[CAM_HEIGHT][CAM_WIDTH];
+volatile ColorTuple CameraData[CAM_HEIGHT][CAM_WIDTH];
 void ImageLoad(uint16_t sx, uint16_t sy, uint16_t mode)
 {
 	uint16_t i, j;
@@ -778,11 +778,16 @@ void ImageLoad(uint16_t sx, uint16_t sy, uint16_t mode)
 					u16 r = (tempData >> 11) & 0x1F;
 					u16 g = (tempData >> 6) & 0x1F;
 					u16 b = (tempData) & 0x1F;
-					s32 sum = r+g+b;
+					//s32 sum = r+g+b;
 					//u8 is_r = ((r*100/(sum)) > 40) && sum > 20;
 					//u8 is_w = sum > 48;
 					//CameraData[j/2][i/2] = (is_r) | (is_w << 1);
-					CameraData[j/2][i/2] = r*32/sum;
+//					if (sum < 10){
+//						CameraData[j/2][i/2] = 0;
+//					}else{
+//						CameraData[j/2][i/2] = ((r*31/sum) << 11)  | ((g*31/sum) << 6) | (b*31/sum);
+//					}
+					CameraData[j/2][i/2] = rgb_to_hsv(r*8, g*8, b*8);
 				}
 			}
 		}
@@ -807,7 +812,8 @@ void ImageDisp(uint16_t sx, uint16_t sy)
 //			}else {
 //				LCD_Write_Data(0x0000);
 //			}
-			LCD_Write_Data(CameraData[j][i] | (CameraData[j][i] << 6) | (CameraData[j][i] << 11));
+			//LCD_Write_Data(CameraData[j][i].h);
+			LCD_Write_Data(CameraData[j][i].h << 11 | CameraData[j][i].s << 6 | CameraData[j][i].v);
 		}
 	}
 }

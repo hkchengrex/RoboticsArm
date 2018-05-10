@@ -2,11 +2,12 @@
 #define __OV7725_H 
 	   
 #include "stm32f10x.h"
+#include "color.h"
 
 #define CAM_WIDTH 100
 #define CAM_HEIGHT 100
 
-extern volatile uint8_t CameraData[CAM_HEIGHT][CAM_WIDTH];
+extern volatile ColorTuple CameraData[CAM_HEIGHT][CAM_WIDTH];
 
 typedef enum{
 	READ_RED
