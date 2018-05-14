@@ -2,10 +2,39 @@
 #include "mymath.h"
 #include "lcd.h"
 
-#define START_X 5
+#define START_X 30
 #define START_Y 10
-#define END_X 20
+#define END_X 90
 #define END_Y 90
+
+Point double_recur_center(const Point p, u8 thre, u8* width, u8* height){
+    //First recur on y line
+    Point np;
+    np.x = p.x;
+    np.y = p.y;
+    
+    s16 tmp_max_y = np.y;
+    while(tmp_max_y < CAM_HEIGHT && (CameraData[tmp_max_y][np.x] > thre)){
+        tmp_max_y++;
+    }
+    while(np.y >= 0 && (CameraData[np.y][np.x] > thre)){
+        np.y--;
+    }
+		*height = ABS(np.y - tmp_max_y);
+    np.y = (np.y + tmp_max_y) / 2;
+
+    s16 tmp_max_x = np.x;
+    while(tmp_max_x < CAM_WIDTH && (CameraData[np.y][tmp_max_x] > thre)){
+        tmp_max_x++;
+    }
+    while(np.x >= 0 && (CameraData[np.y][np.x] > thre)){
+        np.x--;
+    }
+		*width = ABS(np.x - tmp_max_x);
+    np.x = (tmp_max_x + np.x) / 2;
+
+    return np;
+}
 
 s32 closeness_in_h(s32 cur, s32 tar){
 	s32 dif = cur - tar;
@@ -13,6 +42,71 @@ s32 closeness_in_h(s32 cur, s32 tar){
 	while(dif < -128) dif += 128;
 	return 128 - ABS(dif);
 }
+
+//void locate_rgb(s16 *rx, s16 *ry, s16 *gx, s16 *gy, s16 *bx, s16 *by, u16 size, u32 threshold){
+//	u32 max_r = 0, max_g=0, max_b=0;
+//	
+//	u16 max_rx, max_ry;
+//	u16 max_gx, max_gy;
+//	u16 max_bx, max_by;
+//	
+//	for (u16 i=START_Y; i<END_Y; i++){
+//		for (u16 j=START_X; j<END_X; j++){
+//			u32 r_sum=0, g_sum=0, b_sum=0;
+//			for (u8 sx=0; sx<size; sx++){
+//				for (u8 sy=0; sy<size; sy++){
+//					if (CameraData[i+sx][j+sy].s > 80 && CameraData[i+sx][j+sy].v > 80){
+//						r_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 0);
+//						g_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 85);
+//						b_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 171);
+//					}
+//				}
+//			}
+//			
+//			if (r_sum > max_r){
+//				max_r = r_sum;
+//				max_rx = j+size/2;
+//				max_ry = i+size/2;
+//			}
+//			
+//			if (g_sum > max_g){
+//				max_g = g_sum;
+//				max_gx = j+size/2;
+//				max_gy = i+size/2;
+//			}
+//			
+//			if (b_sum > max_b){
+//				max_b = b_sum;
+//				max_bx = j+size/2;
+//				max_by = i+size/2;
+//			}
+//		}
+//	}
+//	
+//	if (max_r > threshold){
+//		*rx = max_rx;
+//		*ry = max_ry;
+//	}else{
+//		*rx = 0;
+//		*ry = 0;
+//	}
+//	
+//	if (max_g > threshold){
+//		*gx = max_gx;
+//		*gy = max_gy;
+//	}else{
+//		*gx = 0;
+//		*gy = 0;
+//	}
+//	
+//	if (max_b > threshold){
+//		*bx = max_bx;
+//		*by = max_by;
+//	}else{
+//		*bx = 0;
+//		*by = 0;
+//	}
+//}
 
 void locate_rgb(s16 *rx, s16 *ry, s16 *gx, s16 *gy, s16 *bx, s16 *by, u16 size, u32 threshold){
 	u32 max_r = 0, max_g=0, max_b=0;
@@ -26,11 +120,7 @@ void locate_rgb(s16 *rx, s16 *ry, s16 *gx, s16 *gy, s16 *bx, s16 *by, u16 size, 
 			u32 r_sum=0, g_sum=0, b_sum=0;
 			for (u8 sx=0; sx<size; sx++){
 				for (u8 sy=0; sy<size; sy++){
-					if (CameraData[i+sx][j+sy].s > 80 && CameraData[i+sx][j+sy].v > 80){
-						r_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 0);
-						g_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 85);
-						b_sum += closeness_in_h(CameraData[i+sx][j+sy].h, 171);
-					}
+					r_sum += (CameraData[i+sx][j+sy] & 0x1F);
 				}
 			}
 			
@@ -61,22 +151,6 @@ void locate_rgb(s16 *rx, s16 *ry, s16 *gx, s16 *gy, s16 *bx, s16 *by, u16 size, 
 		*rx = 0;
 		*ry = 0;
 	}
-	
-	if (max_g > threshold){
-		*gx = max_gx;
-		*gy = max_gy;
-	}else{
-		*gx = 0;
-		*gy = 0;
-	}
-	
-	if (max_b > threshold){
-		*bx = max_bx;
-		*by = max_by;
-	}else{
-		*bx = 0;
-		*by = 0;
-	}
 }
 
 void draw_locator(u16 x, u16 y, u16 min_x, u16 min_y, u16 max_x, u16 max_y, u16 color){
@@ -90,33 +164,6 @@ void draw_locator(u16 x, u16 y, u16 min_x, u16 min_y, u16 max_x, u16 max_y, u16 
 //s32 found_data = 0;
 //u8 data_array[25] = {0};
 //Point point_c, point_1, point_2;
-
-//Point double_recur_center(const Point p, u8 and_tar){
-//    //First recur on y line
-//    Point np;
-//    np.x = p.x;
-//    np.y = p.y;
-//    
-//    s16 tmp_max_y = np.y;
-//    while(tmp_max_y < CAM_HEIGHT && (CameraData[tmp_max_y][np.x] & and_tar)){
-//        tmp_max_y++;
-//    }
-//    while(np.y >= 0 && (CameraData[np.y][np.x] & and_tar)){
-//        np.y--;
-//    }
-//    np.y = (np.y + tmp_max_y) / 2;
-
-//    s16 tmp_max_x = np.x;
-//    while(tmp_max_x < CAM_WIDTH && (CameraData[np.y][tmp_max_x] & and_tar)){
-//        tmp_max_x++;
-//    }
-//    while(np.x >= 0 && (CameraData[np.y][np.x] & and_tar)){
-//        np.x--;
-//    }
-//    np.x = (tmp_max_x + np.x) / 2;
-
-//    return np;
-//}
 
 //void smooth_red(){
 //	for (u8 y=1; y<CAM_HEIGHT-1; y++){

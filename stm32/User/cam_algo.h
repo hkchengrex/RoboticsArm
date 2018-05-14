@@ -31,6 +31,7 @@ extern s32 found_data;
 extern u8 data_array[25];
 extern Point point_c, point_1, point_2;
 
+Point double_recur_center(const Point p, u8 thre, u8* width, u8* height);
 void locate_rgb(s16 *rx, s16 *ry, s16 *gx, s16 *gy, s16 *bx, s16 *by, u16 size, u32 threshold);
 void draw_locator(u16 x, u16 y, u16 min_x, u16 min_y, u16 max_x, u16 max_y, u16 color);
 void smooth_red(void);

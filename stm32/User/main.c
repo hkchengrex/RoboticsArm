@@ -19,28 +19,36 @@
 
 static s32 motor_init_pos[MOTOR_COUNT] = {-1000, 400, -200};
 
+u8 cam_captured = 0;
+u8 captured_w=0, captured_h=0;
+
 u8 use_cam = 0;
 u32 grab_state = 0;
 u32 block_height = 0;
 
-u8 cam_here_pos = 0;
-u8 cam_captured_here = 0;
+u8 red_width = 0;
+u8 red_height = 0;
+u32 red_area = 0;
 
-static s32 motor_view_pos[3][MOTOR_COUNT] = {{-1100, 400, -450}, {-1000, 400, -200}, {-800, 400, -450}};
+static s16 rx=0, ry=0, gx=0, gy=0, bx=0, by=0;
+static s16 cx=0, cy=0;
 
-static s32 motor_pos_1[3][MOTOR_COUNT] = {{-1000, 800, -650}, {-900, 800, -650}, {-750, 800, -650}};
-static s32 motor_pos_2[3][MOTOR_COUNT] = {{-1000, 600, -350}, {-900, 600, -350}, {-750, 600, -350}};
-static s32 motor_pos_3[3][MOTOR_COUNT] = {{-200, 600, -350}, {-200, 600, -350}, {-200, 600, -350}};
+static s32 motor_view_pos[MOTOR_COUNT] = {-1000, 500, -500};
+static s32 motor_pos_1[MOTOR_COUNT] = {-900, 850, -750};
+static s32 motor_pos_2[MOTOR_COUNT] = {-900, 650, -350};
+static s32 motor_pos_3[MOTOR_COUNT] = {-200, 650, -350};
 static s32 motor_pos_4[3][MOTOR_COUNT] = {{-200, 800, -650}, {-200, 750, -600}, {-200, 700, -550}};
-
-static s32 color_pos[3][2] = {{14, 71}, {18, 43}, {13, 53}};
 
 static s32 motor_init_pwm[MOTOR_COUNT] = {2500, -2500, 2500};
 static s32 motor_hard_pwm[MOTOR_COUNT] = {6500, -7500, 8000};
 
 //2 is close, 1 is open
 static s32 servo1_grab = 180;
-static s32 servo1_view = 5;
+static s32 servo1_view = 60;
+
+s32 get_m1_offset(){
+	return 0;
+}
 
 int main(void)
 {
@@ -192,9 +200,9 @@ int main(void)
 						
 						//Goto grab position
 						case 1:
-							motor_set_pos(MOTOR_1, motor_pos_1[cam_here_pos][MOTOR_1]);
-							motor_set_pos(MOTOR_2, motor_pos_1[cam_here_pos][MOTOR_2]);
-							motor_set_pos(MOTOR_3, motor_pos_1[cam_here_pos][MOTOR_3]);
+							motor_set_pos(MOTOR_1, motor_pos_1[MOTOR_1] + get_m1_offset());
+							motor_set_pos(MOTOR_2, motor_pos_1[MOTOR_2]);
+							motor_set_pos(MOTOR_3, motor_pos_1[MOTOR_3]);
 							servo_set_deg(SERVO_1, servo1_grab);
 							servo_set_deg(SERVO_2, 1);
 							if (all_motor_arrived()){
@@ -215,9 +223,9 @@ int main(void)
 						case 3:
 							if (get_ticks() - g1_down_arrive_ticks > 2000){
 								grab_state = 4;
-								motor_set_pos(MOTOR_1, motor_pos_2[cam_here_pos][MOTOR_1]);
-								motor_set_pos(MOTOR_2, motor_pos_2[cam_here_pos][MOTOR_2]);
-								motor_set_pos(MOTOR_3, motor_pos_2[cam_here_pos][MOTOR_3]);
+								motor_set_pos(MOTOR_1, motor_pos_2[MOTOR_1] + get_m1_offset());
+								motor_set_pos(MOTOR_2, motor_pos_2[MOTOR_2]);
+								motor_set_pos(MOTOR_3, motor_pos_2[MOTOR_3]);
 								servo_set_deg(SERVO_1, servo1_grab);
 							}
 						break;
@@ -226,9 +234,9 @@ int main(void)
 						case 4:
 							if (all_motor_arrived() && get_ticks() - g1_down_arrive_ticks > 3000){
 								grab_state = 5;
-								motor_set_pos(MOTOR_1, motor_pos_3[cam_here_pos][MOTOR_1]);
-								motor_set_pos(MOTOR_2, motor_pos_3[cam_here_pos][MOTOR_2]);
-								motor_set_pos(MOTOR_3, motor_pos_3[cam_here_pos][MOTOR_3]);
+								motor_set_pos(MOTOR_1, motor_pos_3[MOTOR_1]);
+								motor_set_pos(MOTOR_2, motor_pos_3[MOTOR_2]);
+								motor_set_pos(MOTOR_3, motor_pos_3[MOTOR_3]);
 							}
 						break;
 							
@@ -255,45 +263,45 @@ int main(void)
 						case 7:
 							if (get_ticks() - g2_down_arrive_ticks > 2000){
 								grab_state = 8;
-								motor_set_pos(MOTOR_1, motor_pos_3[cam_here_pos][MOTOR_1]);
-								motor_set_pos(MOTOR_2, motor_pos_3[cam_here_pos][MOTOR_2]);
-								motor_set_pos(MOTOR_3, motor_pos_3[cam_here_pos][MOTOR_3]);
+								motor_set_pos(MOTOR_1, motor_pos_3[MOTOR_1]);
+								motor_set_pos(MOTOR_2, motor_pos_3[MOTOR_2]);
+								motor_set_pos(MOTOR_3, motor_pos_3[MOTOR_3]);
 							}
 						break;
 							
 						case 8:
 							if (all_motor_arrived() && get_ticks() - g2_down_arrive_ticks > 3000){
-								grab_state = 9;
-								motor_set_pos(MOTOR_1, motor_pos_2[cam_here_pos][MOTOR_1]);
-								motor_set_pos(MOTOR_2, motor_pos_2[cam_here_pos][MOTOR_2]);
-								motor_set_pos(MOTOR_3, motor_pos_2[cam_here_pos][MOTOR_3]);
+								grab_state = 100;
+								motor_set_pos(MOTOR_1, motor_pos_2[MOTOR_1]);
+								motor_set_pos(MOTOR_2, motor_pos_2[MOTOR_2]);
+								motor_set_pos(MOTOR_3, motor_pos_2[MOTOR_3]);
 							}
 						break;
 							
-						case 9:
-							if (all_motor_arrived() && get_ticks() - g2_down_arrive_ticks > 4000){
-								grab_state = 100;
-								motor_set_pos(MOTOR_1, motor_pos_1[cam_here_pos][MOTOR_1]);
-								motor_set_pos(MOTOR_2, motor_pos_1[cam_here_pos][MOTOR_2]);
-								motor_set_pos(MOTOR_3, motor_pos_1[cam_here_pos][MOTOR_3]);
-							}
-						break;
+//						case 9:
+//							if (all_motor_arrived() && get_ticks() - g2_down_arrive_ticks > 4000){
+//								grab_state = 100;
+//								motor_set_pos(MOTOR_1, motor_pos_1[MOTOR_1]);
+//								motor_set_pos(MOTOR_2, motor_pos_1[MOTOR_2]);
+//								motor_set_pos(MOTOR_3, motor_pos_1[MOTOR_3]);
+//							}
+//						break;
 							
 						//Goto viewing position
 						case 100:
-							motor_set_pos(MOTOR_1, motor_view_pos[cam_here_pos][MOTOR_1]);
-							motor_set_pos(MOTOR_2, motor_view_pos[cam_here_pos][MOTOR_2]);
-							motor_set_pos(MOTOR_3, motor_view_pos[cam_here_pos][MOTOR_3]);
+							motor_set_pos(MOTOR_1, motor_view_pos[MOTOR_1]);
+							motor_set_pos(MOTOR_2, motor_view_pos[MOTOR_2]);
+							motor_set_pos(MOTOR_3, motor_view_pos[MOTOR_3]);
 							servo_set_deg(SERVO_1, servo1_view);
 						
 							static u32 last_viewing_ticks = 0;
-							if (cam_captured_here){
+							if (cam_captured){
+								cam_captured = 0;
 								grab_state = 1;
 							}else{
 								if (get_ticks() - last_viewing_ticks > 2000){
 									last_viewing_ticks = get_ticks();
-									cam_here_pos = (cam_here_pos+1) % 3;
-									cam_captured_here = 0;
+									cam_captured = 0;
 								}
 							}
 						break;
@@ -310,18 +318,17 @@ int main(void)
 			use_cam = 0;
 		}
 
-		static s16 rx=0, ry=0, gx=0, gy=0, bx=0, by=0;
-		static s16 cx=0, cy=0;
 		static u32 last_flash_ticks = 0;
 		if (this_ticks - last_flash_ticks >= 100){
 			LCD_Clear();
-			LCD_Printf(0, 0, "%d", this_ticks);
+			LCD_Printf(0, 0, "%d %d", this_ticks, grab_state);
 			LCD_Printf(0, 1, "1:%d %d %d %d", encoder_cnt[0], encoder_vel[0], motor_pwm_value[0], GPIO_ReadInputDataBit(ENCODER_1_RESET_PORT, ENCODER_1_RESET_PIN));
 			LCD_Printf(0, 2, "2:%d %d %d %d", encoder_cnt[1], encoder_vel[1], motor_pwm_value[1], GPIO_ReadInputDataBit(ENCODER_2_RESET_PORT, ENCODER_2_RESET_PIN));
 			LCD_Printf(0, 3, "3:%d %d %d %d", encoder_cnt[2], encoder_vel[2], motor_pwm_value[2], GPIO_ReadInputDataBit(ENCODER_3_RESET_PORT, ENCODER_3_RESET_PIN));
 			LCD_Printf(0, 4, "R:%d %dG:%d %dB:%d %d", rx, ry, gx, gy, bx, by);
 			LCD_Printf(0, 5, "X:%d Y:%d", cx, cy);
-			LCD_Printf(0, 6, "HSV: %d %d %d", CameraData[50][50].h, CameraData[50][50].s, CameraData[50][50].v);
+			LCD_Printf(0, 5, "W:%d H:%d %d", red_width, red_height, red_area);
+			//LCD_Printf(0, 6, "HSV: %d %d %d", CameraData[50][50].h, CameraData[50][50].s, CameraData[50][50].v);
 //			LCD_Printf(0, 5, "D: %d", found_data);
 //			LCD_Printf(0, 6, "%d %d", point_c.x, point_c.y);
 //			for (u8 i=0; i<25; i++){
@@ -347,23 +354,38 @@ int main(void)
 					ImageDisp(cam_mode.lcd_sx,
 										cam_mode.lcd_sy);
 					
-					locate_rgb(&rx, &ry, &gx, &gy, &bx, &by, 3, 70);
+					locate_rgb(&rx, &ry, &gx, &gy, &bx, &by, 5, 300);
+					
+					Point p1, p2;
+					p1.x = rx;
+					p1.y = ry;
+					p2 = double_recur_center(p1, 14, &red_width, &red_height);
+					rx = p2.x;
+					ry = p2.y;
+					
+					red_area = red_width * red_height;
 					
 					#define RGB_DIST_THRE 20
 					s32 rg_dist = DIST_TIMES_16_XY(rx, ry, gx, gy) / 16;
 					s32 gb_dist = DIST_TIMES_16_XY(gx, gy, bx, by) / 16;
 					s32 rb_dist = DIST_TIMES_16_XY(rx, ry, bx, by) / 16;
 					
-					//if (rg_dist<RGB_DIST_THRE && gb_dist<RGB_DIST_THRE && rb_dist<RGB_DIST_THRE){
-					if (gb_dist<RGB_DIST_THRE){
-						cx = (gx + bx) / 2;
-						cy = (gy + by) / 2;
+//					//if (rg_dist<RGB_DIST_THRE && gb_dist<RGB_DIST_THRE && rb_dist<RGB_DIST_THRE){
+//					if (gb_dist<RGB_DIST_THRE){
+//						cx = (gx + bx) / 2;
+//						cy = (gy + by) / 2;
+//						
+//						
+//					}
+					
+					if (grab_state==100 && red_area > 80){
+							cam_captured = 1;
+							cx = rx;
+							cy = ry;
 						
-						s32 dist = DIST_TIMES_16_XY(color_pos[cam_here_pos][0], color_pos[cam_here_pos][1], cx, cy) / 16;
-						if (grab_state==100 && dist < 10){
-							cam_captured_here = 1;
-						}
-					}else{
+							captured_w = cx;
+							captured_h = cy;
+						}else{
 						cx = 0;
 						cy = 0;
 					}
@@ -372,13 +394,13 @@ int main(void)
 												cam_mode.lcd_sx, cam_mode.lcd_sy,
 												cam_mode.lcd_sx+CAM_WIDTH, cam_mode.lcd_sy+CAM_HEIGHT, RED);
 					
-					draw_locator(gx+cam_mode.lcd_sx, gy+cam_mode.lcd_sy,
-												cam_mode.lcd_sx, cam_mode.lcd_sy,
-												cam_mode.lcd_sx+CAM_WIDTH, cam_mode.lcd_sy+CAM_HEIGHT, GREEN);
-					
-					draw_locator(bx+cam_mode.lcd_sx, by+cam_mode.lcd_sy,
-												cam_mode.lcd_sx, cam_mode.lcd_sy,
-												cam_mode.lcd_sx+CAM_WIDTH, cam_mode.lcd_sy+CAM_HEIGHT, BLUE);
+//					draw_locator(gx+cam_mode.lcd_sx, gy+cam_mode.lcd_sy,
+//												cam_mode.lcd_sx, cam_mode.lcd_sy,
+//												cam_mode.lcd_sx+CAM_WIDTH, cam_mode.lcd_sy+CAM_HEIGHT, GREEN);
+//					
+//					draw_locator(bx+cam_mode.lcd_sx, by+cam_mode.lcd_sy,
+//												cam_mode.lcd_sx, cam_mode.lcd_sy,
+//												cam_mode.lcd_sx+CAM_WIDTH, cam_mode.lcd_sy+CAM_HEIGHT, BLUE);
 												
 //					draw_locator(50+cam_mode.lcd_sx, 50+cam_mode.lcd_sy,
 //												cam_mode.lcd_sx, cam_mode.lcd_sy,

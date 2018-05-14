@@ -7,7 +7,7 @@
 #define CAM_WIDTH 100
 #define CAM_HEIGHT 100
 
-extern volatile ColorTuple CameraData[CAM_HEIGHT][CAM_WIDTH];
+extern volatile uint16_t CameraData[CAM_HEIGHT][CAM_WIDTH];
 
 typedef enum{
 	READ_RED
